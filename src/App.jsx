@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import TodoForm from './components/TodoForm';
 import TodoList from './components/TodoList';
 import TodoFilter from './components/TodoFilter';
+import ConfirmModal from './components/ConfirmModal';
+import Toast from './components/Toast';
 import './App.css';
 
 function App() {
+  // Core State
   const [todos, setTodos] = useState(() => {
     const saved = localStorage.getItem('todos');
     return saved ? JSON.parse(saved) : [];
@@ -12,10 +15,21 @@ function App() {
 
   const [filter, setFilter] = useState('all');
 
+  // UI Interactive States
+  const [deleteId, setDeleteId] = useState(null); // Triggers delete modal
+  const [toast, setToast] = useState(null); // Controls notification popups
+
+  // Helper function to show notifications
+  const triggerToast = (message, type = 'info') => {
+    setToast({ message, type });
+  };
+
+  // Sync state to localStorage
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
 
+  // Dynamic Browser Document Title
   useEffect(() => {
     const remainingCount = todos.filter((todo) => !todo.completed).length;
 
@@ -28,6 +42,7 @@ function App() {
     }
   }, [todos]);
 
+  // Action Handlers
   const addTodo = (title) => {
     const newTodo = {
       id: Date.now(),
@@ -35,29 +50,35 @@ function App() {
       completed: false,
       createdAt: new Date().toISOString().split('T')[0],
     };
-    setTodos((prevTodos) => [newTodo, ...prevTodos]);
+    setTodos((prev) => [newTodo, ...prev]);
+    triggerToast('Task added successfully!', 'success');
   };
 
   const toggleTodo = (id) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)),
+    setTodos((prev) =>
+      prev.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)),
     );
-  };
-
-  const deleteTodo = (id) => {
-    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
   };
 
   const editTodo = (id, newTitle) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) => (todo.id === id ? { ...todo, title: newTitle } : todo)),
-    );
+    setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, title: newTitle } : todo)));
+    triggerToast('Task updated!', 'info');
+  };
+
+  const confirmDelete = () => {
+    if (!deleteId) return;
+    setTodos((prev) => prev.filter((todo) => todo.id !== deleteId));
+    setDeleteId(null);
+    triggerToast('Task deleted successfully!', 'danger');
   };
 
   const clearCompleted = () => {
-    setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed));
+    const completedCount = todos.filter((t) => t.completed).length;
+    setTodos((prev) => prev.filter((todo) => !todo.completed));
+    triggerToast(`Cleared ${completedCount} completed task(s)!`, 'info');
   };
 
+  // Derived Values
   const totalCount = todos.length;
   const completedCount = todos.filter((t) => t.completed).length;
   const remainingCount = totalCount - completedCount;
@@ -70,14 +91,25 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1 className="app-title">My Todo List</h1>
+      <h1 className="app-title">
+        Task<span>Master</span>
+      </h1>
 
       <TodoForm onAddTodo={addTodo} />
 
       <div className="stats-container">
-        <span>Total: {totalCount}</span>
-        <span>Remaining: {remainingCount}</span>
-        <span>Completed: {completedCount}</span>
+        <div className="stat-box">
+          <span className="stat-label">Total</span>
+          <span className="stat-value">{totalCount}</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Active</span>
+          <span className="stat-value">{remainingCount}</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Done</span>
+          <span className="stat-value">{completedCount}</span>
+        </div>
       </div>
 
       <TodoFilter currentFilter={filter} onFilterChange={setFilter} />
@@ -86,7 +118,7 @@ function App() {
         todos={filteredTodos}
         filter={filter}
         onToggle={toggleTodo}
-        onDelete={deleteTodo}
+        onRequestDelete={(id) => setDeleteId(id)}
         onEdit={editTodo}
       />
 
@@ -97,6 +129,18 @@ function App() {
           </button>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={Boolean(deleteId)}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
+
+      {/* Popup Notifications */}
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

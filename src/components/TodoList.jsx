@@ -1,11 +1,11 @@
 import TodoItem from './TodoItem';
 
-function TodoList({ todos, filter, onToggle, onDelete, onEdit }) {
+function TodoList({ todos, filter, onToggle, onRequestDelete, onEdit }) {
   if (todos.length === 0) {
     return (
       <div className="empty-state">
-        {filter === 'all' && <p>No tasks yet! Add your first task above.</p>}
-        {filter === 'active' && <p>No active tasks remaining.</p>}
+        {filter === 'all' && <p>No tasks yet! Create one above.</p>}
+        {filter === 'active' && <p>No active tasks remaining 🎉</p>}
         {filter === 'completed' && <p>No completed tasks found.</p>}
       </div>
     );
@@ -18,7 +18,7 @@ function TodoList({ todos, filter, onToggle, onDelete, onEdit }) {
           key={todo.id}
           todo={todo}
           onToggle={onToggle}
-          onDelete={onDelete}
+          onRequestDelete={onRequestDelete}
           onEdit={onEdit}
         />
       ))}

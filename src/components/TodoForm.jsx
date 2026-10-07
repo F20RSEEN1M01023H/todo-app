@@ -5,7 +5,6 @@ function TodoForm({ onAddTodo }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!title.trim()) return;
 
     onAddTodo(title.trim());
@@ -17,12 +16,12 @@ function TodoForm({ onAddTodo }) {
       <input
         type="text"
         className="todo-input"
-        placeholder="Enter a new task..."
+        placeholder="What needs to be done?"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
       <button type="submit" className="btn-add">
-        Add
+        Add Task
       </button>
     </form>
   );
