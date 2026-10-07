@@ -35,7 +35,7 @@ body {
     'Segoe UI',
     Roboto,
     sans-serif;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #d1d8df 0%, #e2e8f0 100%);
   color: var(--slate-800);
   min-height: 100vh;
   display: flex;
