@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function TodoItem({ todo, onToggle, onDelete, onEdit }) {
+function TodoItem({ todo, onToggle, onRequestDelete, onEdit }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(todo.title);
 
@@ -42,17 +42,19 @@ function TodoItem({ todo, onToggle, onDelete, onEdit }) {
               checked={todo.completed}
               onChange={() => onToggle(todo.id)}
             />
-            <span className={`todo-text ${todo.completed ? 'completed-text' : ''}`}>
-              {todo.title}
-            </span>
-            <span className="todo-date">({todo.createdAt})</span>
+            <div className="todo-details">
+              <span className={`todo-text ${todo.completed ? 'completed-text' : ''}`}>
+                {todo.title}
+              </span>
+              <span className="todo-date">Created: {todo.createdAt}</span>
+            </div>
           </div>
 
           <div className="actions">
             <button className="btn-action btn-edit" onClick={() => setIsEditing(true)}>
               Edit
             </button>
-            <button className="btn-action btn-delete" onClick={() => onDelete(todo.id)}>
+            <button className="btn-action btn-delete" onClick={() => onRequestDelete(todo.id)}>
               Delete
             </button>
           </div>
